@@ -22,8 +22,8 @@ public class GreatController {
     // 좋아요 또는 취소
     // '메시지' & '좋아요' 개수 반환
     @PostMapping("/greats")
-    public ResponseEntity<?> createOrDeleteGreat(@RequestBody GreatForPostRequestDto dto) {
-        Boolean isLiked = greatService.likePost(dto.getPostId(), dto.getUserId());
+    public ResponseEntity<?> createOrDeleteGreat(@RequestBody GreatForPostRequestDto dto, @RequestParam String userId) {
+        Boolean isLiked = greatService.likePost(dto.getPostId(), userId);
         Long greatCount = greatService.countGreatByPostId(dto.getPostId());
         System.out.println("##" + greatCount); //
         GreatForPostResponseDto responseDto = GreatForPostResponseDto.toDto(dto.getPostId(), greatCount);

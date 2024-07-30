@@ -31,17 +31,16 @@ public class CommentController {
     }
 
 
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/comments")
-    public ResponseEntity<?> createComment(@RequestBody CommentRequestDto dto) {
+    public ResponseEntity<?> createComment(@RequestBody CommentRequestDto dto, @RequestParam String userId) {
 
         try {
-            Comment comment = commentService.createComment(dto);
+            Comment comment = commentService.createComment(dto, userId);
             CommentResponseDto newComment = CommentResponseDto.toDto(comment);
             Map response = new HashMap();
             response.put("message","댓글이 성공적으로 작성되었습니다.");
             response.put("newComment", newComment);
-            return ResponseEntity.ok().body(response);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (InvalidRequestException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("message", "유저 또는 입력 데이터가 유효하지 않습니다."));
         } catch (Exception e) {
@@ -61,9 +60,9 @@ public class CommentController {
 
 
     @PostMapping("/comments/{commentId}/update")
-    public ResponseEntity<?> updateCommentById(@PathVariable Long commentId, @RequestBody CommentRequestDto dto) {
+    public ResponseEntity<?> updateCommentById(@PathVariable Long commentId, @RequestBody CommentRequestDto dto, @RequestParam String userId) {
         try {
-            Comment comment = commentService.updateCommentById(commentId, dto);
+            Comment comment = commentService.updateCommentById(commentId, dto, userId);
             CommentResponseDto responseDto = CommentResponseDto.toDto(comment);
 
             Map<String, Object> response = new HashMap<>();
@@ -80,9 +79,9 @@ public class CommentController {
 
 
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<?> deleteByCommentId(@PathVariable Long commentId) {
+    public ResponseEntity<?> deleteByCommentId(@PathVariable Long commentId, @RequestParam String userId) {
         try {
-            commentService.deleteById(commentId);
+            commentService.deleteById(commentId, userId);
             return ResponseEntity.ok().body(Collections.singletonMap("message", "게시글이 성공적으로 삭제되었습니다."));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));

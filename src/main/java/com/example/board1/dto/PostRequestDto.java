@@ -17,7 +17,7 @@ public class PostRequestDto {
 
     private String title;
     private String content;
-    private String userId;
+//    private String userId;
 
 
     public static Post toEntity(PostRequestDto dto, User user) {

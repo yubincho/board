@@ -25,27 +25,22 @@ public class PostController {
     private final UserRepository userRepository;
 
 
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/posts")
-    public ResponseEntity<?> createPost(@RequestBody PostRequestDto dto) {
+    public ResponseEntity<?> createPost(@RequestBody PostRequestDto dto, @RequestParam String userId) {
         try {
-            Optional<User> userOptional = userRepository.findById(dto.getUserId());
-            if (userOptional.isEmpty()) {
-                return ResponseEntity.badRequest().body("User not found");
-            }
-            User user = userOptional.get();
-
-            Post newPost = postService.createPost(dto, user);
+            Post newPost = postService.createPost(dto, userId);
             PostResponseDto responseDto = PostResponseDto.toDto(newPost);
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Post created successfully");
             response.put("post", responseDto);
-            return ResponseEntity.ok().body(response);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (InvalidRequestException e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("message", "유저 또는 입력 데이터가 유효하지 않습니다."));
         } catch (Exception e) {
             // 로깅 등의 추가적인 오류 처리를 고려
+            System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("message", "Internal server error"));
         }
 
@@ -60,7 +55,7 @@ public class PostController {
 
 
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<?> findPostByPostId(@PathVariable Long postId) {
+    public ResponseEntity<?> findPostByPostId(@PathVariable Long postId, @RequestParam String userId) {
         try {
             Post findPOst = postService.findPostByPostId(postId);
             PostResponseDto responseDto = PostResponseDto.toDto(findPOst);
@@ -75,10 +70,10 @@ public class PostController {
 
 
     @PostMapping("/posts/{postId}/update")
-    public ResponseEntity<?> updatePost(@PathVariable Long postId, @RequestBody PostRequestDto dto) {
+    public ResponseEntity<?> updatePost(@PathVariable Long postId, @RequestBody PostRequestDto dto, @RequestParam String userId) {
 
         try {
-            Post updatedPost = postService.update(dto, postId);
+            Post updatedPost = postService.update(dto, postId, userId);
             PostResponseDto responseDto = PostResponseDto.toDto(updatedPost);
 
             Map<String, Object> response = new HashMap<>();
@@ -96,9 +91,9 @@ public class PostController {
 
 
     @DeleteMapping("/posts/{postId}/delete")
-    public ResponseEntity<?> deletePostByPostId(@PathVariable Long postId) {
+    public ResponseEntity<?> deletePostByPostId(@PathVariable Long postId, @RequestParam String userId) {
         try {
-            postService.deletePostByPostId(postId);
+            postService.deletePostByPostId(postId, userId);
             return ResponseEntity.ok().body(Collections.singletonMap("message", "게시글이 성공적으로 삭제되었습니다."));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));

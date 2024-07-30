@@ -1,8 +1,5 @@
 package com.example.board1.service;
 
-import com.example.board1.dto.CommentRequestDto;
-import com.example.board1.dto.GreatForPostRequestDto;
-import com.example.board1.entity.Comment;
 import com.example.board1.entity.Great;
 import com.example.board1.entity.Post;
 import com.example.board1.entity.User;

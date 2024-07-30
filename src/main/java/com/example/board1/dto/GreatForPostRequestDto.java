@@ -11,7 +11,7 @@ import lombok.*;
 public class GreatForPostRequestDto {
 
     private Long postId;
-    private String userId;
+//    private String userId;
 
 
 }

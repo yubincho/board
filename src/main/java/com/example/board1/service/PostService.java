@@ -24,13 +24,11 @@ public class PostService {
 
 
     @Transactional
-    public Post createPost(PostRequestDto dto, User user) {
-        if (dto != null) {
-            Post newPost = PostRequestDto.toEntity(dto, user);
-            return postRepository.save(newPost);
-        } else {
-            throw new InvalidRequestException("Post request data is required but was not provided.");
-        }
+    public Post createPost(PostRequestDto dto, String userId) {
+        User user = userService.findUserByUserId(userId);
+        Post newPost = PostRequestDto.toEntity(dto, user);
+        return postRepository.save(newPost);
+
     }
 
 
@@ -51,28 +49,28 @@ public class PostService {
 
 
     @Transactional
-    public Post update(PostRequestDto dto, Long postId) {
-        if (dto == null || postId == null) {
-            throw new IllegalArgumentException("Post ID and DTO must not be null");
-        }
-        User user = userService.findUserByUserId(dto.getUserId());
+    public Post update(PostRequestDto dto, Long postId, String userId) {
+        User user = userService.findUserByUserId(userId);
         User postUser = this.findPostByPostId(postId).getUser();
-        if (user == null || !user.equals(postUser)) {
+        if (!user.equals(postUser)) {
             throw new IllegalArgumentException("User not found for given userId");
         }
-            Post findPost = postRepository.findById(postId).orElseThrow(
-                    () -> new NotFoundException("Post not found")
-            );
-            findPost.setTitle(dto.getTitle());
-            findPost.setContent(dto.getContent());
-            return postRepository.save(findPost);
+        Post findPost = this.findPostByPostId(postId);
+        findPost.setTitle(dto.getTitle());
+        findPost.setContent(dto.getContent());
+        return postRepository.save(findPost);
     }
 
 
 
     @Transactional
-    public void deletePostByPostId(Long postId) {
+    public void deletePostByPostId(Long postId, String userId) {
+        User user = userService.findUserByUserId(userId);
         Post post = this.findPostByPostId(postId);
+
+        if (!user.equals(post.getUser())) {
+            throw new IllegalArgumentException("User not found for given userId");
+        }
         postRepository.delete(post);
     }
 

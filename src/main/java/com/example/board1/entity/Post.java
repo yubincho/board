@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -48,7 +49,8 @@ public class Post extends BaseEntity {
 
 
     public long getLikesCount() {
-        return greats.size();
+//        return greats.size();
+        return Optional.ofNullable(greats).map(List::size).orElse(0);
     }
 
 
