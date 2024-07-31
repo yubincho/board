@@ -55,9 +55,11 @@ public class PostController {
 //        return ResponseEntity.ok().body(postResponseDtos);
 //    }
 
+    // post 전체 가져오기
     @GetMapping("/posts")
-    public Page<PostResponseDto> findAllPosts(@RequestParam(defaultValue = "0") int page) {
-        return postService.getAll(page);
+    public Page<PostResponseDto> findAllPosts(
+            @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "kw", defaultValue = "") String kw ) {
+        return postService.getAll(page, kw);
     }
 
 

@@ -3,16 +3,19 @@ package com.example.board1.service;
 import com.example.board1.dto.PostRequestDto;
 import com.example.board1.dto.PostResponseDto;
 import com.example.board1.dto.PostWithCommentsDto;
+import com.example.board1.entity.Comment;
 import com.example.board1.entity.Post;
 import com.example.board1.entity.User;
 import com.example.board1.exception.InvalidRequestException;
 import com.example.board1.exception.NotFoundException;
 import com.example.board1.repository.PostRepository;
+import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,17 +43,40 @@ public class PostService {
 
 //    public List<PostResponseDto> findAll() {
 //        List<Post> posts = postRepository.findAll();
-//
 //        return posts.stream()
 //                .map(PostResponseDto::toDto)
 //                .collect(Collectors.toList());
 //    }
 
-    // 페이징
-    public Page<PostResponseDto> getAll(int page) {
+    // 조회 페이지 : int page
+    // 검색어 : String kw
+    public Page<PostResponseDto> getAll(int page, String kw) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("createdAt")));
-        Page<Post> posts = (Page<Post>) postRepository.findAll(pageable);
+
+        // 검색
+        Specification<Post> spec = search(kw);
+
+        Page<Post> posts = (Page<Post>) postRepository.findAll(spec, pageable);
         return posts.map(PostResponseDto::toDto);
+    }
+
+    // 검색
+    private Specification<Post> search(String kw) {
+        return new Specification<>() {
+            private static final long serialVersionUID = 1L;
+            @Override
+            public Predicate toPredicate(Root<Post> p, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                query.distinct(true);  // 중복을 제거
+                Join<Post, User> u1 = p.join("user", JoinType.LEFT);
+                Join<Post, Comment> a = p.join("comments", JoinType.LEFT);
+                Join<Comment, User> u2 = a.join("user", JoinType.LEFT);
+                return cb.or(cb.like(p.get("title"), "%" + kw + "%"), // 제목
+                        cb.like(p.get("content"), "%" + kw + "%"),      // 내용
+                        cb.like(u1.get("nickname"), "%" + kw + "%"),    // 질문 작성자
+                        cb.like(a.get("content"), "%" + kw + "%"),      // 답변 내용
+                        cb.like(u2.get("nickname"), "%" + kw + "%"));   // 답변 작성자
+            }
+        };
     }
 
 
