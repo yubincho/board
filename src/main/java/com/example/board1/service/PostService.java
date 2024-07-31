@@ -2,6 +2,7 @@ package com.example.board1.service;
 
 import com.example.board1.dto.PostRequestDto;
 import com.example.board1.dto.PostResponseDto;
+import com.example.board1.dto.PostWithCommentsDto;
 import com.example.board1.entity.Post;
 import com.example.board1.entity.User;
 import com.example.board1.exception.InvalidRequestException;
@@ -41,10 +42,17 @@ public class PostService {
     }
 
 
+    // postId를 받아 post 만 출력
     public Post findPostByPostId(Long postId) {
         return postRepository.findById(postId).orElseThrow(
                 () -> new NotFoundException("Post not found")
         );
+    }
+
+    // postId를 받아 post 와 comments 모두 출력
+    public PostWithCommentsDto findPostWithCommentsByPostId(Long postId) {
+        Post postWithComments = this.findPostByPostId(postId);
+        return PostWithCommentsDto.toDto(postWithComments);
     }
 
 

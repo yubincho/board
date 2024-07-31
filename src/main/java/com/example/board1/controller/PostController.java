@@ -2,6 +2,7 @@ package com.example.board1.controller;
 
 import com.example.board1.dto.PostRequestDto;
 import com.example.board1.dto.PostResponseDto;
+import com.example.board1.dto.PostWithCommentsDto;
 import com.example.board1.entity.Post;
 import com.example.board1.entity.User;
 import com.example.board1.exception.InvalidRequestException;
@@ -54,11 +55,29 @@ public class PostController {
     }
 
 
-    @GetMapping("/posts/{postId}")
-    public ResponseEntity<?> findPostByPostId(@PathVariable Long postId, @RequestParam String userId) {
+    // postId를 받아 post 만 출력
+    @GetMapping("/posts/post/{postId}")
+    public ResponseEntity<?> findPostByPostId(@PathVariable Long postId) {
+        // @RequestParam String userId 삭제 - h2 db 때문.
         try {
             Post findPOst = postService.findPostByPostId(postId);
             PostResponseDto responseDto = PostResponseDto.toDto(findPOst);
+            return ResponseEntity.ok().body(responseDto);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("message", "Post not found"));
+        } catch (Exception e) {
+            // 로깅 등의 추가적인 오류 처리를 고려
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("message", "Internal server error"));
+        }
+    }
+
+
+    // postId를 받아 post 와 comments 모두 출력
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<?> findPostWithCommentsByPostId(@PathVariable Long postId) {
+        // @RequestParam String userId 삭제 - h2 db 때문.
+        try {
+            PostWithCommentsDto responseDto = postService.findPostWithCommentsByPostId(postId);
             return ResponseEntity.ok().body(responseDto);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("message", "Post not found"));
