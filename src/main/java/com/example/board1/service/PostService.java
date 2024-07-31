@@ -9,9 +9,14 @@ import com.example.board1.exception.InvalidRequestException;
 import com.example.board1.exception.NotFoundException;
 import com.example.board1.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,12 +38,19 @@ public class PostService {
     }
 
 
-    public List<PostResponseDto> findAll() {
-        List<Post> posts = postRepository.findAll();
+//    public List<PostResponseDto> findAll() {
+//        List<Post> posts = postRepository.findAll();
+//
+//        return posts.stream()
+//                .map(PostResponseDto::toDto)
+//                .collect(Collectors.toList());
+//    }
 
-        return posts.stream()
-                .map(PostResponseDto::toDto)
-                .collect(Collectors.toList());
+    // 페이징
+    public Page<PostResponseDto> getAll(int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("createdAt")));
+        Page<Post> posts = (Page<Post>) postRepository.findAll(pageable);
+        return posts.map(PostResponseDto::toDto);
     }
 
 

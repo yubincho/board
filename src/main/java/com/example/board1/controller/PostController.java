@@ -10,6 +10,7 @@ import com.example.board1.exception.NotFoundException;
 import com.example.board1.repository.UserRepository;
 import com.example.board1.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,10 +49,15 @@ public class PostController {
     }
 
 
+//    @GetMapping("/posts")
+//    public ResponseEntity<?> findAllPosts() {
+//        List<PostResponseDto> postResponseDtos = postService.findAll();
+//        return ResponseEntity.ok().body(postResponseDtos);
+//    }
+
     @GetMapping("/posts")
-    public ResponseEntity<?> findAllPosts() {
-        List<PostResponseDto> postResponseDtos = postService.findAll();
-        return ResponseEntity.ok().body(postResponseDtos);
+    public Page<PostResponseDto> findAllPosts(@RequestParam(defaultValue = "0") int page) {
+        return postService.getAll(page);
     }
 
 
