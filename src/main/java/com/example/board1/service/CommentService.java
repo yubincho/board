@@ -2,6 +2,7 @@ package com.example.board1.service;
 
 import com.example.board1.dto.CommentRequestDto;
 import com.example.board1.dto.CommentResponseDto;
+import com.example.board1.dto.CommentWithChildrenDto;
 import com.example.board1.entity.Comment;
 import com.example.board1.entity.Post;
 import com.example.board1.entity.User;
@@ -24,36 +25,61 @@ public class CommentService {
     private final UserService userService;
 
 
-    public List<CommentResponseDto> findAll() {
+    // 모든 댓글 (대댓글 포함) 가져오기
+    public List<CommentWithChildrenDto> findAll() {
 
         List<Comment> comments = commentRepository.findAll();
 
         return comments.stream()
-                .map(CommentResponseDto::toDto)
+                .map(CommentWithChildrenDto::toDto)
                 .collect(Collectors.toList());
     }
 
 
+    // 댓글
     @Transactional
-    public Comment createComment(CommentRequestDto dto, String userId) {
+    public Comment createComment(CommentRequestDto dto, Long postId, String userId) {
         User user = userService.findUserByUserId(userId);
-        Post post = postService.findPostByPostId(dto.getPostId());
+        Post post = postService.findPostByPostId(postId);
 
-        Comment comment = this.toEntity(dto, userId);
+        Comment comment = Comment.builder()
+                .content(dto.getContent())
+                .user(user)
+                .post(post)
+                .build();
 
         return commentRepository.save(comment);
     }
 
-    public Comment toEntity(CommentRequestDto dto, String userId) {
-        Post post = postService.findPostByPostId(dto.getPostId());
+
+    // 대댓글 추가
+    @Transactional
+    public Comment addCommentChild(CommentRequestDto dto, Long parentId, String userId) {
+        Comment parent = commentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent comment not found"));
         User user = userService.findUserByUserId(userId);
 
-        return Comment.builder()
+        Comment child = Comment.builder()
                 .content(dto.getContent())
-                .post(post)
                 .user(user)
+                .post(parent.getPost()) // 대댓글은 부모 댓글과 같은 게시글
                 .build();
+
+        // 자식 댓글을 추가
+        parent.addChildComment(child);
+
+        return commentRepository.save(child);
     }
+
+//    public Comment toEntity(CommentRequestDto dto, Long postId, String userId) {
+//        Post post = postService.findPostByPostId(postId);
+//        User user = userService.findUserByUserId(userId);
+//
+//        return Comment.builder()
+//                .content(dto.getContent())
+//                .post(post)
+//                .user(user)
+//                .build();
+//    }
 
 
     public Comment findByCommentId(Long commentId) {

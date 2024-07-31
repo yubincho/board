@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Getter
 public class CommentRequestDto {
 
-    private Long postId;
+//    private Long postId;
     private String content;
 //    private String userId;
 

@@ -2,6 +2,7 @@ package com.example.board1.controller;
 
 import com.example.board1.dto.CommentRequestDto;
 import com.example.board1.dto.CommentResponseDto;
+import com.example.board1.dto.CommentWithChildrenDto;
 import com.example.board1.entity.Comment;
 import com.example.board1.exception.InvalidRequestException;
 import com.example.board1.service.CommentService;
@@ -24,18 +25,20 @@ public class CommentController {
     private final CommentService commentService;
 
 
+    // 모든 댓글 (대댓글 포함) 가져오기
     @GetMapping("/comments")
     public ResponseEntity<?> findAllComments() {
-        List<CommentResponseDto> comments = commentService.findAll();
+        List<CommentWithChildrenDto> comments = commentService.findAll();
         return ResponseEntity.ok().body(comments);
     }
 
-
+    // 댓글 작성
     @PostMapping("/comments")
-    public ResponseEntity<?> createComment(@RequestBody CommentRequestDto dto, @RequestParam String userId) {
+    public ResponseEntity<?> createComment(
+            @RequestBody CommentRequestDto dto, @RequestParam Long postId, @RequestParam String userId) {
 
         try {
-            Comment comment = commentService.createComment(dto, userId);
+            Comment comment = commentService.createComment(dto, postId, userId);
             CommentResponseDto newComment = CommentResponseDto.toDto(comment);
             Map response = new HashMap();
             response.put("message","댓글이 성공적으로 작성되었습니다.");
@@ -49,6 +52,29 @@ public class CommentController {
         }
 
     }
+
+
+    // 대댓글 작성
+    @PostMapping("/comments/reply")
+    public ResponseEntity<?> createCommentChild(
+            @RequestBody CommentRequestDto dto, @RequestParam Long parentId, @RequestParam String userId) {
+        try {
+            Comment comment = commentService.addCommentChild(dto, parentId, userId);
+            CommentWithChildrenDto newComments = CommentWithChildrenDto.toDto(comment);
+
+            Map response = new HashMap();
+            response.put("message","댓글이 성공적으로 작성되었습니다.");
+            response.put("newComments", newComments);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (InvalidRequestException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("message", "유저 또는 입력 데이터가 유효하지 않습니다."));
+        } catch (Exception e) {
+            // 로깅 등의 추가적인 오류 처리를 고려
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("message", "Internal server error"));
+        }
+
+    }
+
 
 
     @GetMapping("/comments/{commentId}")

@@ -50,14 +50,14 @@ public class PostService {
 
     // 조회 페이지 : int page
     // 검색어 : String kw
-    public Page<PostResponseDto> getAll(int page, String kw) {
+    public Page<PostWithCommentsDto> getAll(int page, String kw) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("createdAt")));
 
         // 검색
         Specification<Post> spec = search(kw);
 
         Page<Post> posts = (Page<Post>) postRepository.findAll(spec, pageable);
-        return posts.map(PostResponseDto::toDto);
+        return posts.map(PostWithCommentsDto::toDto);
     }
 
     // 검색

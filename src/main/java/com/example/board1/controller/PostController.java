@@ -57,9 +57,14 @@ public class PostController {
 
     // post 전체 가져오기
     @GetMapping("/posts")
-    public Page<PostResponseDto> findAllPosts(
+    public ResponseEntity<?> findAllPosts(
             @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "kw", defaultValue = "") String kw ) {
-        return postService.getAll(page, kw);
+        try {
+            Page<PostWithCommentsDto> posts = postService.getAll(page, kw);
+            return ResponseEntity.ok().body(posts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("message", "Internal server error"));
+        }
     }
 
 

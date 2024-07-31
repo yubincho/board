@@ -20,7 +20,7 @@ public class PostWithCommentsDto {
     private String content;
     private Long greats;
     private String nickname;  // user
-    private List<CommentResponseDto> commentList;
+    private List<CommentWithChildrenDto> commentList;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String userId;
@@ -40,7 +40,7 @@ public class PostWithCommentsDto {
                 .greats(post.getLikesCount())   // 좋아요 수
                 .commentList(post.getComments()
                         .stream()
-                        .map(CommentResponseDto::toDto)
+                        .map(CommentWithChildrenDto::toDto)
                         .collect(Collectors.toList())
                 )
                 .userId(post.getUser().getUserId())
