@@ -1,12 +1,18 @@
 package com.example.board1.service;
 
+import com.example.board1.dto.GreatForPostAndUserDto;
 import com.example.board1.entity.Great;
 import com.example.board1.entity.Post;
 import com.example.board1.entity.User;
 import com.example.board1.repository.GreatRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -54,6 +60,26 @@ public class GreatService {
         return greatRepository.countGreatByPostId(postId);
     }
 
+
+    // 게시물 별 좋아요 수 상위 N개
+    public List<GreatForPostAndUserDto> getTopPosts(int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        List<Object[]> results = greatRepository.findTopPosts(pageable);
+
+        return results.stream()
+                .map(result -> GreatForPostAndUserDto.toDto((Long) result[0], (String) result[1], (Long) result[2]))
+                .collect(Collectors.toList());
+    }
+
+    // 유저 별 좋아요 수 상위 N개
+    public List<User> getTopUsers(int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        List<Object[]> results = greatRepository.findTopUsers(pageable);
+
+        return results.stream()
+                .map(result -> (User) result[0])
+                .collect(Collectors.toList());
+    }
 
     
 

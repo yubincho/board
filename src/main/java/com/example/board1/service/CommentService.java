@@ -55,7 +55,7 @@ public class CommentService {
     // 대댓글 추가
     @Transactional
     public Comment addCommentChild(CommentRequestDto dto, Long parentId, String userId) {
-        Comment parent = commentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent comment not found"));
+        Comment parent = commentRepository.findById(parentId).orElseThrow(() -> new NotFoundException("Parent comment not found"));
         User user = userService.findUserByUserId(userId);
 
         Comment child = Comment.builder()

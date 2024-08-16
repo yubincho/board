@@ -31,9 +31,11 @@ public class Post extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "post")
     private List<Great> greats;  // 게시글에 대한 좋아요 목록
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

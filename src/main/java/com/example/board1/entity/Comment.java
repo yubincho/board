@@ -29,13 +29,16 @@ public class Comment extends BaseEntity {
     @Column(length = 300)
     private String content;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "comment")
     private List<Great> greats;  // 댓글에 대한 좋아요 목록
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;

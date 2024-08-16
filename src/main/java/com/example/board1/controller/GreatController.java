@@ -1,14 +1,21 @@
 package com.example.board1.controller;
 
+import com.example.board1.dto.GreatForPostAndUserDto;
 import com.example.board1.dto.GreatForPostRequestDto;
 import com.example.board1.dto.GreatForPostResponseDto;
+import com.example.board1.entity.Post;
+import com.example.board1.entity.User;
 import com.example.board1.service.GreatService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -36,6 +43,23 @@ public class GreatController {
     }
 
 
+    // 게시물 별 좋아요 수 상위 N개 (limit)
+//    @GetMapping("/top-greats")
+//    public ResponseEntity<?> getTopPosts(@RequestParam(defaultValue = "10") int limit) {
+//        try {
+//            List<GreatForPostAndUserDto> responseDtos = greatService.getTopPosts(limit);
+//            return ResponseEntity.ok(responseDtos);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("message", "Internal server error"));
+//        }
+//    }
+//
+//    // 유저 별 좋아요 수 상위 N개 (limit)
+//    @GetMapping("/top-users")
+//    public ResponseEntity<?> getTopUsers(@RequestParam(defaultValue = "10") int limit) {
+//        List<User> topUsers = greatService.getTopUsers(limit);
+//        return ResponseEntity.ok(topUsers);
+//    }
 
 
 
